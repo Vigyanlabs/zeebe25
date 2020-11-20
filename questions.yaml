@@ -1,0 +1,233 @@
+questions:
+  # Image
+  - variable: image.repository
+    label: Camunda Zeebe Image
+    type: string
+    default: camunda/zeebe
+    required: true
+    group: Image
+    
+  - variable: image.tag
+    label: Camunda Zeebe Image Tag
+    type: string
+    default: 0.25.1
+    required: true
+    group: Image
+
+ #- variable: micro.operate.enabled
+ #  label: Select to deploy Camunda Operate microservice, It is a licensed product and involves cost.
+ #  type: boolean
+ #  default: false
+ #  required: true
+ #  group: Camunda Operate
+ #  show_subquestion_if: true
+ #  subquestions:
+ #    - variable: opr.image.repository
+ #      label: Camunda Operate Image
+ #      type: string
+ #      default: registry.tecnotree.com/mirror/registry.docker.io/camunda/operate
+ #      required: true
+ #
+ #    - variable: opr.image.tag
+ #      label: Camunda Operate Image Tag
+ #      type: string
+ #      default: 1.1.0-alpha1
+ #      required: true
+ #
+ # # Camunda Operate
+ # - variable: ingress.operate.enabled
+ #   label: Enable Ingress
+ #   type: boolean
+ #   default: false
+ #   required: true
+ #   group: Camunda Operate
+ #   show_if: "micro.operate.enabled=true"
+ #   show_subquestion_if: true
+ #   subquestions:
+ #     - variable: ingress.operate.host
+ #       label: External hostname
+ #       description: User facing hostname of the system
+ #       type: string
+ #       default: operate.cluster1.devtestlab2.tecnotree.com
+ #
+ #     - variable: ingress.operate.path
+ #       label: Path prefix
+ #       description: "NOTE: Include leading and trailing slashes!"
+ #       type: string
+ #       default: /
+ #
+ # - variable: ingress.operate.tls.enabled
+ #   label: Enable TLS
+ #   type: boolean
+ #   default: false
+ #   required: true
+ #   group: Camunda Operate
+ #   show_if: "ingress.operate.enabled=true"
+ #   show_subquestion_if: true
+ #   subquestions:
+ #     - variable: ingress.operate.tls.secret
+ #       label: TLS certificate secret name
+ #       type: string
+        
+  # Zeebe-Broker
+
+  - variable: standalone_gateway.enabled
+    label: ZEEBE_BROKER_GATEWAY_ENABLE
+    description: ZEEBE_BROKER_GATEWAY_ENABLE, true or false, if true gateway is embedded in the broker, if false gateway get deployed separately
+    type: boolean
+    default: false
+    required: true
+    group: Zeebe-Broker
+    show_subquestion_if: true
+    subquestions:
+      -  variable: podDisruptionBudget.enabled
+         label: ZEEBE_GATEWAY_POD_DISRUPTION_BUDGET_ENABLE
+         description: ZEEBE__GATEWAY_POD_DISRUPTION_BUDGET_ENABLE, true or false
+         type: boolean
+         default: false
+         required: true
+
+  - variable: persistence.enabled
+    label: Enable Persistence Volume for Zeebe Data [Recommended].
+    description: If false,  data is written to tmpfs/RAM
+    type: boolean
+    default: true
+    required: true
+    group: Zeebe-Broker
+    show_subquestion_if: true
+    subquestions:
+      - variable: pvcStorageClassName
+        label: Storage class
+        description: Preferably use "vmware-class"
+        type: storageclass
+
+      - variable: pvcSize
+        label: Size of volume claim
+        description: Size of persistence Storage Volume, preferably 1.5G per partition
+        type: string
+        default: 20Gi
+        required: true
+
+  - variable: global.logLevel
+    label: LOG LEVEL for zeebe logs
+    description: LOG LEVEL for zeebe logs
+    type: enum
+    default: info
+    options:
+      - info
+      - debug
+      - error      
+    required: true
+    group: Zeebe-Broker
+
+  - variable: partitionCount
+    label: Zeebe Partitions Count
+    description: Zeebe Partitions Count per broker
+    type: int
+    default: 3
+    required: true
+    group: Zeebe-Broker
+
+  - variable: clusterSize
+    label: Zeebe Cluster Size
+    description: Zeebe Cluster Size
+    type: int
+    default: 3
+    required: true
+    group: Zeebe-Broker
+
+  - variable: replicationFactor
+    label: Zeebe Replication Factor
+    description: Zeebe Replication Factor for HA must be minimum 3 or 5/7/9 for qorum majority election
+    type: int
+    default: 3
+    required: true
+    group: Zeebe-Broker
+
+  - variable: cpuThreadCount
+    label: CPU Thread Count
+    description: CPU Thread Count
+    type: int
+    default: 2
+    required: true
+    group: Zeebe-Broker
+    
+  - variable: ioThreadCount
+    label: I/O Thread Count
+    description: I/O Thread Count
+    type: int
+    default: 2
+    required: true
+    group: Zeebe-Broker
+
+  
+
+  - variable: JavaOpts
+    label: Zeebe JAVA_TOOL_OPTIONS
+    description: Fine grained control of Container Java Heap
+    type: string
+    default: "-XX:MaxRAMPercentage=25.0 -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/usr/local/zeebe/data -XX:ErrorFile=/usr/local/zeebe/data/zeebe_error%p.log -XX:+ExitOnOutOfMemoryError"
+    required: true
+    group: Zeebe-Broker
+
+  - variable: zeebe_cluster_name
+    label: Zeebe Cluster Name
+    description: Zeebe Cluster Name
+    type: string
+    default: zeebe
+    required: true
+    group: Zeebe-Broker
+
+  #- variable: zb_bp_appender
+  #  label: ZEEBE_BP_APPENDER
+  #  description: ZEEBE_BP_APPENDER, true or false
+  #  type: boolean
+  #  default: false
+  #  required: true
+  #  group: Zeebe-Broker
+  #
+  ##Camunda Operate
+  #- variable: elasticsearch_host
+  #  label: Elasticsearch hostname
+  #  description: Elasticsearch hostname <servicename>.<stackname> for Camunda Operate
+  #  type: string
+  #  default: elastic.om.devtestlab2.tecnotree.com
+  #  required: true
+  #  show_if: "ingress.operate.enabled=true"
+  #  group: Camunda Operate
+  #
+  #- variable: elasticsearch_port
+  #  label: Elasticsearch Port
+  #  description: Elasticsearch Port <servicename>.<stackname> for Camunda Operate
+  #  type: string
+  #  default: 80
+  #  required: true
+  #  show_if: "ingress.operate.enabled=true"
+  #  group: Camunda Operate
+  #
+  #- variable: zeebe_brokercontactpoint
+  #  label: zeebe_brokercontactpoint
+  #  description: zeebe_brokercontactpoint
+  #  type: string
+  #  default: zeebe.dap:26500
+  #  required: true
+  #  show_if: "ingress.operate.enabled=true"
+  #  group: Camunda Operate
+  #
+  #- variable: sm.replicaCount
+  #  label: Replica Count
+  #  description: Replica Count
+  #  type: int
+  #  default: 1
+  #  required: true
+  #  show_if: "ingress.operate.enabled=true"
+  #  group: Camunda Operate
+  #
+  ##Resources
+  #- variable: hpa.enabled
+  #  label: Enable Auto Scaling
+  #  type: boolean
+  #  default: false
+  #  required: true
+  #  group: Resources
+    
